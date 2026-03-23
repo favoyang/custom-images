@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 FROM caddy:2.11.2-builder AS builder
+ENV PATH=/usr/local/go/bin:$PATH
 
 RUN xcaddy build \
-    --with github.com/caddy-dns/cloudflare=github.com/shellyeah/cloudflare-dns-caddy-fix-temp \
+    --with github.com/caddy-dns/cloudflare=github.com/shellyeah/cloudflare-dns-caddy-fix-temp@fb4bccefb53a8f5c5014bda47d1b27403552c4b0 \
     --with github.com/WeidiDeng/caddy-cloudflare-ip \
     --with github.com/porech/caddy-maxmind-geolocation \
     --with github.com/mholt/caddy-ratelimit
