@@ -11,3 +11,20 @@ This repository contains custom Docker images for personal use.
 ## Automated Updates
 
 Base images are automatically checked for updates every Sunday and updated when new versions are available. To include new images in automated updates, add them to `.github/config/images.yml`. For local testing, run `./scripts/test-update.sh`.
+
+## Workflow Relationship
+
+```text
+.github/config/images.yml
+  -> .github/workflows/bump-base-images.yml
+     -> updates image Dockerfile on main when a newer base image exists
+     -> push to main
+     -> explicit workflow_dispatch
+        -> .github/workflows/build-caddy-cloudflare-geoip-ratelimit.yml
+           -> uses .github/workflows/build-image.yml
+              -> build/push image to GHCR
+
+manual Dockerfile change on main
+  -> .github/workflows/build-caddy-cloudflare-geoip-ratelimit.yml
+     -> uses .github/workflows/build-image.yml
+```

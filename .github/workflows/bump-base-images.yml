@@ -1,5 +1,5 @@
-# Workflow to automatically update Docker base images
-name: Update Base Images
+# Workflow to automatically bump Docker base image versions
+name: Bump Base Images
 
 # Run every Sunday at 2 AM UTC (every 7 days)
 on:
@@ -81,7 +81,6 @@ jobs:
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
           
-          # Set needs_update for backward compatibility
           if [ "$UP_TO_DATE" = "false" ] && [ "$UPDATE_SUCCESS" = "true" ]; then
             echo "needs_update=true" >> $GITHUB_OUTPUT
           else
@@ -110,11 +109,10 @@ jobs:
         run: |
           echo "Triggering build workflow for ${{ matrix.name }}"
           
-          # Trigger the specific build workflow
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ matrix.build_workflow }}/dispatches \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-${{ matrix.name }}.yml/dispatches \
             -d '{"ref":"main"}'
 
       - name: Create summary
@@ -125,7 +123,7 @@ jobs:
           echo "**Image:** ${{ matrix.name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Update:** ${{ steps.update_check.outputs.current_version }} → ${{ steps.update_check.outputs.latest_version }}" >> $GITHUB_STEP_SUMMARY
           echo "**Dockerfile:** \`${{ matrix.dockerfile_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Build Workflow:** Triggered \`${{ matrix.build_workflow }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Workflow:** Triggered via explicit workflow dispatch after the automated push" >> $GITHUB_STEP_SUMMARY
 
   # Collect results from all image updates
   summary:
