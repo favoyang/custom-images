@@ -12,6 +12,8 @@ This repository contains custom Docker images for personal use.
 
 Base images are automatically checked for updates every Sunday and updated when new versions are available. To include new images in automated updates, add them to `.github/config/images.yml`. For local testing, run `./scripts/test-update.sh`.
 
+Manual `Dockerfile` changes also force a rebuild of the corresponding image, even when the parsed version tag already exists in GHCR.
+
 ## Workflow Relationship
 
 ```text

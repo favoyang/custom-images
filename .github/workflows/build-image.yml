@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: 'linux/amd64'
+      force_build:
+        description: 'Force a rebuild even if the parsed version tag already exists'
+        required: false
+        type: boolean
+        default: false
 
 # Environment variables available to all jobs and steps in this workflow
 env:
@@ -70,6 +75,12 @@ jobs:
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository }}/${{ inputs.docker_name }}"
           VERSION="${{ steps.version.outputs.version }}"
+
+          if [ "${{ inputs.force_build }}" = "true" ]; then
+            echo "Force build enabled for $IMAGE_NAME:$VERSION"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           
           echo "Checking if $IMAGE_NAME:$VERSION already exists..."
           
