@@ -16,6 +16,8 @@ Docker builds are available at GitHub Container Registry:
 
 - **GitHub Packages**: `docker pull ghcr.io/favoyang/custom-images/caddy-cloudflare-geoip-ratelimit:latest`
 
+This image is published as a multi-arch manifest for `linux/amd64` and `linux/arm64`.
+
 ### Tags
 
 The following tags are available for the `ghcr.io/favoyang/custom-images/caddy-cloudflare-geoip-ratelimit` image:

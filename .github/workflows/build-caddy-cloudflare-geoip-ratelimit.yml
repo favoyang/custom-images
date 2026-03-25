@@ -8,6 +8,8 @@ on:
     branches: main
     paths:
       - caddy-cloudflare-geoip-ratelimit/Dockerfile
+      - .github/workflows/build-caddy-cloudflare-geoip-ratelimit.yml
+      - .github/workflows/build-image.yml
 
 # Permissions needed for this workflow
 permissions:
@@ -21,5 +23,5 @@ jobs:
       docker_name: caddy-cloudflare-geoip-ratelimit
       docker_description: "Caddy Docker custom build with Cloudflare GeoIP and Rate Limit modules"
       version_regex: 'caddy:\K[0-9]+\.[0-9]+\.[0-9]+$'
-      platforms: linux/amd64
+      platforms: linux/amd64,linux/arm64
       force_build: true
