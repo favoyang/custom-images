@@ -5,12 +5,10 @@
 
 This image is updated automatically by GitHub Actions when changes are made to the Dockerfile using the official [Caddy Docker](https://hub.docker.com/_/caddy) image and the following modules:
 
-- **Cloudflare DNS**: for Cloudflare DNS-01 ACME validation support, currently built from the [shellyeah/cloudflare-dns-caddy-fix-temp](https://github.com/shellyeah/cloudflare-dns-caddy-fix-temp) fork to address [caddy-dns/cloudflare issue #125](https://github.com/caddy-dns/cloudflare/issues/125) while preserving the upstream module path
+- **Cloudflare DNS**: for Cloudflare DNS-01 ACME validation support | [caddy-dns/cloudflare](https://github.com/caddy-dns/cloudflare)
 - **Cloudflare IPs**: to retrieve Cloudflare's current [IP ranges](https://www.cloudflare.com/ips/) | [WeidiDeng/caddy-cloudflare-ip](https://github.com/WeidiDeng/caddy-cloudflare-ip)
 - **GeoIP Filter**: to allow or block traffic from specific regions based on [Maxmind GeoLite2 database](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) | [porech/caddy-maxmind-geolocation](https://github.com/porech/caddy-maxmind-geolocation)
 - **Rate Limit**: to control request rates and prevent abuse | [mholt/caddy-ratelimit](https://github.com/mholt/caddy-ratelimit)
-
-Note: this fork is intended as a temporary workaround. Roll back to the upstream `caddy-dns/cloudflare` repository once issue `#125` is fixed there.
 
 ## Usage
 
