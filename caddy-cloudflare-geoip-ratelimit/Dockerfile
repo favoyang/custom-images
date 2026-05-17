@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM caddy:2.11.2-builder AS builder
+FROM caddy:2.11.3-builder AS builder
 ENV PATH=/usr/local/go/bin:$PATH
 
 RUN xcaddy build \
@@ -8,6 +8,6 @@ RUN xcaddy build \
     --with github.com/porech/caddy-maxmind-geolocation \
     --with github.com/mholt/caddy-ratelimit
 
-FROM caddy:2.11.2
+FROM caddy:2.11.3
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
