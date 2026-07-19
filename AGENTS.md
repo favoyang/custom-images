@@ -86,7 +86,7 @@ jobs:
 - Default to `linux/amd64` architecture
 - Test with `./scripts/test-update.sh` before committing
 
-# Pull Request Delivery Workflow
+## Pull Request Delivery Workflow
 
 Deliver repository changes through pull requests by default, regardless of
 size. Do not make changes directly in the main checkout unless the user
