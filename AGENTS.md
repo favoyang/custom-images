@@ -12,79 +12,11 @@ When adding a new Docker image to this project:
 - Update main `README.md` to include new image in "Images Included" section
 - Test with `./scripts/test-update.sh`
 
-## Registry support
+## Image authoring reference
 
-- Docker Hub: Use image name only (e.g., `nginx`)
-- GitHub Container Registry: Use full path (e.g., `ghcr.io/owner/repo/package`)
+When adding an image or changing registry/version parsing, image README structure, or build wrappers, read [docs/image-authoring.md](docs/image-authoring.md). It contains the required templates, registry patterns, and architecture defaults.
 
-## Version parsing
-
-- Docker Hub: `grep -oP '[image]:\K[0-9]+\.[0-9]+\.[0-9]+' $DOCKER_NAME/Dockerfile`
-- GitHub Container Registry: `grep -oP 'ghcr\.io/[owner]/[repo]/[package]:\K[0-9]+\.[0-9]+\.[0-9]+' $DOCKER_NAME/Dockerfile`
-
-## README template
-
-Follow this exact structure for `[image-name]/README.md`:
-
-```markdown
-# [Image Name]
-
-[![GitHub Container Registry](https://img.shields.io/badge/GHCR%20-%20favoyang%2Fcustom--images%2F[image-name]%20-%20%230db7ed?style=flat&logo=docker)](https://ghcr.io/favoyang/custom-images/[image-name])
-[![GitHub build status](https://img.shields.io/github/actions/workflow/status/favoyang/custom-images/build-[image-name].yml?label=Build)](https://github.com/favoyang/custom-images/actions/workflows/build-[image-name].yml)
-
-This image is updated automatically by GitHub Actions when changes are made to the Dockerfile using the official [Base Image](link-to-base) image.
-
-## Usage
-
-Docker builds are available at GitHub Container Registry:
-
-- **GitHub Packages**: `docker pull ghcr.io/favoyang/custom-images/[image-name]:latest`
-
-### Tags
-
-The following tags are available for the `ghcr.io/favoyang/custom-images/[image-name]` image:
-
-- `latest`
-- `<version>` (eg: `1.0.0`, including: `1.0`, `1`, etc.)
-```
-
-## Workflow template
-
-Create `.github/workflows/build-[image-name].yml` using this template:
-
-```yaml
-# Workflow to build and push [Image Name] Docker image to GitHub Container Registry
-name: Build [image-name]
-
-# Controls when the action will run
-on:
-  workflow_dispatch:  # allows to run the workflow manually from the Actions tab
-  push:
-    branches: main
-    paths:
-      - [image-name]/Dockerfile
-
-# Permissions needed for this workflow
-permissions:
-  contents: read
-  packages: write
-
-jobs:
-  build:
-    uses: ./.github/workflows/build-image.yml
-    with:
-      docker_name: [image-name]
-      docker_description: "[Description of the Docker image]"
-      version_regex: '[appropriate-regex-pattern]'
-      platforms: linux/amd64
-```
-
-## Key requirements
-
-- Use the reusable workflow template above for new build workflows
-- Choose appropriate `version_regex` pattern based on base image registry
-- Default to `linux/amd64` architecture
-- Test with `./scripts/test-update.sh` before committing
+Instruction-only edits need generated-file and link checks; run `./scripts/test-update.sh` for image or update-workflow changes.
 
 ## Pull Request Delivery Workflow
 
@@ -93,35 +25,19 @@ size. Do not make changes directly in the main checkout unless the user
 explicitly approves an exception. Direct commits to `main` or the default
 branch should be limited to explicit user-approved exceptions.
 
-Follow this delivery sequence:
+Work on a dedicated topic branch, using a separate worktree when required or
+useful. Make the requested change, run relevant validation, and pass the review
+gate below before committing or creating/updating a PR. Keep saved-plan
+progress current and close the plan when its objective is complete. PRs should
+describe the final scope and validation results.
 
-1. Create a dedicated topic branch. Use a separate worktree when repository
-   guidance requires one or when isolation is useful.
-2. Make the requested change and run relevant validation.
-3. Update plan progress when working from a saved plan.
-4. Run the review gate, fix valid findings, revalidate, and repeat the review
-   until it passes.
-5. Close the plan when appropriate, then commit and push the reviewed change.
-6. Create or update the GitHub pull request with a brief summary and the
-   validation commands that were run.
-7. Verify required checks and merge when there is no blocking reason. When a
-   repository uses Conventional Commits to determine semantic releases, give
-   the pull request and squash merge a valid Conventional Commit title that
-   reflects the intended release type (for example, `fix:` or `feat:`).
-8. Monitor any explicitly authorized deployment when applicable, then remove
-   the clean merged worktree and delete its merged local and remote topic
-   branches. Ordinary remote deletion is authorized after confirming that the
-   exact pull request is merged and the remote ref matches its recorded head.
-   After a squash merge, `git branch -D` is authorized only for the local topic
-   branch after confirming that its tip matches the recorded head and either
-   its tree matches the squash commit's tree, or, when the base advanced, both
-   the `git patch-id --verbatim` of its aggregate diff from the merge base
-   matches the verbatim patch ID of the squash commit's first-parent diff and
-   applying that exact aggregate diff to the first-parent tree produces the
-   squash commit's tree. Exact whole-tree equality normally fails when another
-   pull request merges first; the combined second proof establishes the
-   squashed aggregate change without ignoring whitespace or patch locations.
-   Retain the branch if neither proof succeeds.
+When asked to prepare changes as PRs for review, finish with validated,
+reviewed PRs and report remaining limitations. A read-only review ends with
+findings and coverage limits; it does not authorize changes or PR creation.
+For authorized delivery, continue through green checks,
+merge, any explicitly authorized deployment, and verified cleanup. Use a
+Conventional Commit PR title and squash subject when the repository uses them
+to determine release versions.
 
 Treat a request to `deploy`, `ship`, `publish`, or `deliver` the current
 requested repository change set as authorization to complete this normal
@@ -129,7 +45,7 @@ topic-branch workflow: commit reviewed in-scope changes, push the topic branch,
 create or update its pull request, monitor required checks, make narrowly scoped
 fixes for failures caused by the change, merge when all gates pass, and remove
 the clean merged worktree and merged topic branches under the cleanup checks
-above. Apply required validation and review to every fix. Do not ask for
+below. Apply required validation and review to every fix. Do not ask for
 separate approval for each ordinary step.
 
 This authorization applies only to the current requested repository change
@@ -143,9 +59,8 @@ automatically by the repository's existing merge workflow. In this section,
 `deploy` authorizes repository delivery; it authorizes a service or
 infrastructure deployment only when the current request specifically identifies
 that deployment. More-specific repository approval rules, including final
-content or product publication, still apply. Cleanup does not include removing
-a dirty worktree, using `git branch -D` for any other local branch, any forced
-remote operation, or other destructive operations.
+content or product publication, still apply. Cleanup is limited to the verified merged worktree and topic
+branches described below; it never includes dirty worktrees or forced remote operations.
 
 When requesting platform approval for an authorized step, quote the user's
 delivery request and this shared instruction in the justification. If a
@@ -153,16 +68,29 @@ platform reviewer rejects the action, ask the user once and wait. Do not retry
 an equivalent escalation or repeat the prompt during automatic continuations
 unless the user provides new authorization or relevant context.
 
-Direct-default-branch exceptions still need a clean scope check before
-committing. When an exception is approved, state that the normal pull request
-workflow is being bypassed because of the explicit exception.
+Before committing, run `git status --short`, stage intended files by exact
+path, and verify the staged scope. For an explicitly approved default-branch
+exception, state that the normal PR workflow is being bypassed and still check
+scope. Include screenshots only for changes to rendered UI, generated visual
+output, or external presentation.
 
-Before committing, run `git status --short` and verify the staged files match
-the requested change. Stage files by exact path when possible. Avoid broad
-staging commands such as `git add .` when unrelated local work exists.
+## Merged-Branch Cleanup
 
-Include screenshots in the pull request only if a change affects rendered UI,
-generated visual output, or external presentation.
+After confirming the exact PR is merged, remove only its clean worktree.
+Ordinary remote branch deletion requires the remote ref to match the PR's
+recorded head. A local topic branch may be deleted with `git branch -D` only
+when its tip matches that recorded head and either:
+
+- Its tree matches the squash commit's tree; or
+- When the base advanced, both the `git patch-id --verbatim` of the aggregate
+  diff from the merge base matches the squash commit's first-parent diff and
+  applying that exact aggregate diff to the first-parent tree produces the
+  squash commit's tree.
+
+The second proof handles intervening base changes without ignoring whitespace
+or patch locations. Retain the branch if neither proof succeeds. This is not
+authorization for `git branch -D` on any other local branch or for other
+destructive operations.
 
 ## Review Gate
 
